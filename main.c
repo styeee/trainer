@@ -1,8 +1,11 @@
-#include <stdio.h>
+#include <teach.h>
 
 int main()
 {
-	printf("test");
+	init();
+
+	loop:
+	goto loop;
 
 	return 0;
 }

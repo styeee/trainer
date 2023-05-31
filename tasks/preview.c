@@ -4,5 +4,8 @@ int main()
 {
 	init();
 
+	loop:
+	goto loop;
+
 	return 0;
 }
