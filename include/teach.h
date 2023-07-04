@@ -1,5 +1,6 @@
 #include <winsock.h>
 #include <windows.h>
+#include <time.h>
 
 unsigned int WAIT_TIME=1000;
 
@@ -20,8 +21,13 @@ inline void SetWindowSize(const short w,const short h)
     	SetConsoleWindowInfo(Handle,1,&Rect); 
 }
 
-unsigned x=1;
-unsigned y=6;
+static char remote_mode=0;
+
+#define start_x 1
+#define start_y 6
+
+unsigned x=start_x;
+unsigned y=start_y;
 
 #define w 16
 #define h 8
@@ -36,11 +42,17 @@ const char skins[]={'>','^','<','v'};
 char skin_id=0;
 char skin='>';
 
+static HANDLE console_orig;
+static HANDLE console;
+
 void init()
 {
+	srand(time(0));
 	SetWindowSize(w-1,h-1);
 
+	console_orig=GetStdHandle(STD_OUTPUT_HANDLE);
 	console=CreateConsoleScreenBuffer(GENERIC_READ|GENERIC_WRITE,0,0,CONSOLE_TEXTMODE_BUFFER,0);
+
 	SetConsoleActiveScreenBuffer(console);
 	
 	//for(size_t i=0;i<wh;i++)screen[i]=' ';
@@ -69,9 +81,29 @@ void act(char c)
 	switch(c)
 	{
 		case '#':
+			//Sleep(WAIT_TIME);
+			//exit(3);
+			
 			Sleep(WAIT_TIME);
-			exit(1);
+			screen[x%w+y*w]='X';
+			draw();
+			Sleep(WAIT_TIME*2);
+			
+			screen[x%w+y*w]='#';
+			screen[(x=start_x)%w+(y=start_y)*w]=skin='>';
+			Sleep(WAIT_TIME*2);
 		break;
+		case 'i':
+			{
+				unsigned pos;			
+
+				do
+				{
+					pos=(rand()%w)+(rand()%h)*w;
+				}
+				while(screen[pos]!=' ');
+				screen[pos]='i';
+			}
 	}
 }
 
@@ -146,6 +178,19 @@ char see()
 	}
 }
 
+#include <stdio.h>
+void echo(const char*format,...)
+{
+	SetConsoleActiveScreenBuffer(console_orig);
+	va_list argptr;
+    	va_start(argptr, format);
+    	vfprintf(stderr, format, argptr);
+    	va_end(argptr);
+	Sleep(WAIT_TIME);
+	system("cls");
+	SetConsoleActiveScreenBuffer(console);
+}
+
 void remote(unsigned short port)
 {
     WSADATA wsa;
@@ -163,24 +208,48 @@ void remote(unsigned short port)
 
     listen(listener, 1);
 
-    int c = sizeof(struct sockaddr_in);
+    int c=sizeof(struct sockaddr_in);
     struct sockaddr_in client;
     SOCKET socket = accept(listener, (struct sockaddr*)&client, &c);
 
-    send(socket, "0 - rotate\n1 - forward\n...\n", 29, 0);
+#define text_info "(m - for change mode)\n\nmode 1:\n\n0 - rotate\n1 - forward\n\nmode 2:\n\n00 - down\n01 - up\n10 - left\n11 - right\n" 
+    send(socket,text_info,sizeof(text_info)+1, 0);
 
     char act;
     while(1)
     {
         recv(socket,&act,1,0);
-        switch (act)
+        switch(act)
         {
-        case '0':
-            rotate();
-            break;
-        case '1':
-            forward();
-            break;
+        	case '0':
+			if(remote_mode)
+			{
+				recv(socket,&act,1,0);
+				if(act=='0'){down();skin='v';}
+				else if(act=='1'){up();skin='^';}
+			}
+			else rotate();
+        	break;
+        	case '1':
+			if(remote_mode)
+			{
+				recv(socket,&act,1,0);
+				if(act=='0'){left();skin='<';}
+				else if(act=='1'){right();skin='>';}
+			}
+            		else forward();
+       		break;
+		case 'm':
+			remote_mode=!remote_mode;
+		break;
+		case 't':
+			echo("test");
+		break;
+		case 'w':
+			Sleep(WAIT_TIME);
+		break;
+		case 'e':
+			exit(4);
         }
     }
 

@@ -4,3 +4,6 @@
 4 add remote and set_wait function into teach.h
 5 add remote python client into util
 6 move tasks to util
+7 create 2 modes
+8 add echo
+9 spawn new i target
