@@ -1,6 +1,7 @@
+#include <winsock.h>
 #include <windows.h>
 
-#define WAIT_TIME 1000
+unsigned int WAIT_TIME=1000;
 
 typedef unsigned size_t;
 
@@ -143,4 +144,46 @@ char see()
 		case 3:return screen[x%w+(y+1)*w];
 		default:exit(3);
 	}
+}
+
+void remote(unsigned short port)
+{
+    WSADATA wsa;
+    WSAStartup(MAKEWORD(2, 2), &wsa);
+
+    SOCKET listener;
+    listener = socket(AF_INET, SOCK_STREAM, 0);
+
+    struct sockaddr_in server;
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons(port);
+
+    bind(listener, (struct sockaddr*)&server, sizeof(server));
+
+    listen(listener, 1);
+
+    int c = sizeof(struct sockaddr_in);
+    struct sockaddr_in client;
+    SOCKET socket = accept(listener, (struct sockaddr*)&client, &c);
+
+    send(socket, "0 - rotate\n1 - forward\n...\n", 29, 0);
+
+    char act;
+    while(1)
+    {
+        recv(socket,&act,1,0);
+        switch (act)
+        {
+        case '0':
+            rotate();
+            break;
+        case '1':
+            forward();
+            break;
+        }
+    }
+
+    closesocket(listener);
+    WSACleanup();
 }
