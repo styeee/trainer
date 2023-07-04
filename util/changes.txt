@@ -7,3 +7,9 @@
 7 create 2 modes
 8 add echo
 9 spawn new i target
+10 add score
+11 add echo when connected and switch modes
+12 move teach.h to util
+13 fix mistary error with echo
+14 add swither to tasks
+15 exclude main.exe when run_and_compile (bad beh on mode 2)

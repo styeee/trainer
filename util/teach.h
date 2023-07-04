@@ -6,6 +6,27 @@ unsigned int WAIT_TIME=1000;
 
 typedef unsigned size_t;
 
+static HANDLE console_orig;
+static HANDLE console;
+
+#include <stdio.h>
+inline void echo(const char*format,...)
+
+{
+	SetConsoleActiveScreenBuffer(console_orig);
+	va_list argptr;
+    	va_start(argptr, format);
+    	vfprintf(stderr, format, argptr);
+    	va_end(argptr);
+	Sleep(WAIT_TIME);
+	system("cls");
+	SetConsoleActiveScreenBuffer(console);
+}
+inline void set_wait(int t)
+{
+	if(t<0)WAIT_TIME=1000;
+	else WAIT_TIME=t;
+}
 inline void SetWindowSize(const short w,const short h)
 {
 	COORD coord;
@@ -22,6 +43,7 @@ inline void SetWindowSize(const short w,const short h)
 }
 
 static char remote_mode=0;
+unsigned score=0;
 
 #define start_x 1
 #define start_y 6
@@ -41,9 +63,6 @@ HANDLE console;
 const char skins[]={'>','^','<','v'};
 char skin_id=0;
 char skin='>';
-
-static HANDLE console_orig;
-static HANDLE console;
 
 void init()
 {
@@ -102,6 +121,7 @@ void act(char c)
 					pos=(rand()%w)+(rand()%h)*w;
 				}
 				while(screen[pos]!=' ');
+				echo("now score is:%d",score);
 				screen[pos]='i';
 			}
 	}
@@ -178,19 +198,6 @@ char see()
 	}
 }
 
-#include <stdio.h>
-void echo(const char*format,...)
-{
-	SetConsoleActiveScreenBuffer(console_orig);
-	va_list argptr;
-    	va_start(argptr, format);
-    	vfprintf(stderr, format, argptr);
-    	va_end(argptr);
-	Sleep(WAIT_TIME);
-	system("cls");
-	SetConsoleActiveScreenBuffer(console);
-}
-
 void remote(unsigned short port)
 {
     WSADATA wsa;
@@ -213,7 +220,8 @@ void remote(unsigned short port)
     SOCKET socket = accept(listener, (struct sockaddr*)&client, &c);
 
 #define text_info "(m - for change mode)\n\nmode 1:\n\n0 - rotate\n1 - forward\n\nmode 2:\n\n00 - down\n01 - up\n10 - left\n11 - right\n" 
-    send(socket,text_info,sizeof(text_info)+1, 0);
+    send(socket,text_info,sizeof(text_info)+1,0);
+	echo("remote connected on port %d",port);
 
     char act;
     while(1)
@@ -241,6 +249,7 @@ void remote(unsigned short port)
        		break;
 		case 'm':
 			remote_mode=!remote_mode;
+			echo("switch to mode %d\n",remote_mode+1);
 		break;
 		case 't':
 			echo("test");

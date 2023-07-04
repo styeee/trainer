@@ -1,2 +1,4 @@
 @echo off
-cmd.exe /k "compiler.exe main.c -lwsock32&main.exe"
+del /q main.exe
+cls
+cmd.exe /k "compiler.exe main.c -lwsock32&main.exe&rm main.exe"

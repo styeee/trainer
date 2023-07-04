@@ -6,7 +6,7 @@ int main()
 	label:
 
 	printf("second passed\n");
-	Sleep(1000)
+	Sleep(1000);
 
 	goto label;
 	
