@@ -233,8 +233,8 @@ void remote(unsigned short port)
 			if(remote_mode)
 			{
 				recv(socket,&act,1,0);
-				if(act=='0'){down();skin='v';}
-				else if(act=='1'){up();skin='^';}
+				if(act=='0'){skin='v';down();}
+				else if(act=='1'){skin='^';up();}
 			}
 			else rotate();
         	break;
@@ -242,8 +242,8 @@ void remote(unsigned short port)
 			if(remote_mode)
 			{
 				recv(socket,&act,1,0);
-				if(act=='0'){left();skin='<';}
-				else if(act=='1'){right();skin='>';}
+				if(act=='0'){skin='<';left();}
+				else if(act=='1'){skin='>';right();}
 			}
             		else forward();
        		break;

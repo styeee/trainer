@@ -13,3 +13,4 @@
 13 fix mistary error with echo
 14 add swither to tasks
 15 exclude main.exe when run_and_compile (bad beh on mode 2)
+16 fix bad beh on mode 2 (main.exe exclude is not working)
