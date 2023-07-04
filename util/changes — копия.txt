@@ -1,5 +1,0 @@
-1 add changes list
-2 add util folder
-3 move info into util
-4 add remote and set_wait function into teach.h
-5 add remote python client into util
