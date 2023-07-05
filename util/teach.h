@@ -1,6 +1,8 @@
 #include <winsock.h>
+#include <winuser.h>
 #include <windows.h>
 #include <time.h>
+#include <string.h>
 
 unsigned int WAIT_TIME=1000;
 
@@ -64,8 +66,46 @@ const char skins[]={'>','^','<','v'};
 char skin_id=0;
 char skin='>';
 
-void init()
+typedef struct{void*prev;char value;}node;
+static node*stack=0;
+unsigned stack_count=0;
+
+void push(char x)
 {
+	node*n=(node*)malloc(sizeof(node));
+	n->prev=stack;
+	n->value=x;
+	stack=n;
+	stack_count++;
+}
+char pop()
+{
+	if(!stack_count)return 0;
+	char r=stack->value;
+	node*n=stack->prev;
+	free(stack);
+	stack=n;
+	stack_count--;
+	return r;
+}
+char*erase()
+{
+	char*all=(char*)malloc(stack_count+1);
+	all[stack_count]=0;
+	while(stack_count)
+		all[stack_count-1]=pop();
+	return all;
+}
+void restore(char*all)
+{
+		unsigned i=0;
+	while(all[i])
+		push(all[i++]);
+	free(all);
+}
+
+void init()
+{	
 	srand(time(0));
 	SetWindowSize(w-1,h-1);
 
@@ -121,7 +161,7 @@ void act(char c)
 					pos=(rand()%w)+(rand()%h)*w;
 				}
 				while(screen[pos]!=' ');
-				echo("now score is:%d",score);
+				echo("now score is:%d",++score);
 				screen[pos]='i';
 			}
 	}
@@ -230,18 +270,22 @@ void remote(unsigned short port)
         switch(act)
         {
         	case '0':
+			push('0');
 			if(remote_mode)
 			{
 				recv(socket,&act,1,0);
+				push(act);
 				if(act=='0'){skin='v';down();}
 				else if(act=='1'){skin='^';up();}
 			}
 			else rotate();
         	break;
         	case '1':
+			push('1');
 			if(remote_mode)
 			{
 				recv(socket,&act,1,0);
+				push(act);
 				if(act=='0'){skin='<';left();}
 				else if(act=='1'){skin='>';right();}
 			}
@@ -256,6 +300,33 @@ void remote(unsigned short port)
 		break;
 		case 'w':
 			Sleep(WAIT_TIME);
+		break;
+		case 'c':
+		{
+			char*t=erase();
+			echo("copy to \nclipboard\nand clear:\n[%s]",t);
+
+			OpenClipboard(0);
+			EmptyClipboard();
+			HGLOBAL hgBuffer=GlobalAlloc(GMEM_DDESHARE,strlen(t)+1);
+   			char*chBuffer=(char*)GlobalLock(hgBuffer);
+   			strcpy(chBuffer,(const char*)t);
+   			GlobalUnlock(hgBuffer);
+   			SetClipboardData(CF_TEXT,hgBuffer);
+			CloseClipboard();
+
+			free(t);
+		}
+		break;
+		case 'k':
+			Sleep(WAIT_TIME);
+			screen[x%w+y*w]='X';
+			draw();
+			Sleep(WAIT_TIME*2);
+			
+			screen[x%w+y*w]=' ';
+			screen[(x=start_x)%w+(y=start_y)*w]=skin='>';
+			Sleep(WAIT_TIME*2);
 		break;
 		case 'e':
 			exit(4);

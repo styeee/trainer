@@ -14,3 +14,8 @@
 14 add swither to tasks
 15 exclude main.exe when run_and_compile (bad beh on mode 2)
 16 fix bad beh on mode 2 (main.exe exclude is not working)
+17 change main.exe to program.exe
+18 add stack that storage commands
+19 fix score
+20 show message with program that storage in stack
+21 start with remote if drag some param
