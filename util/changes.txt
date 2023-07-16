@@ -19,3 +19,5 @@
 19 fix score
 20 show message with program that storage in stack
 21 start with remote if drag some param
+22 restore after viruses
+23 numerate tasks
