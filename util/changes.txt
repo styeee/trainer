@@ -1,0 +1,30 @@
+1 add changes list
+2 add util folder
+3 move info into util
+4 add remote and set_wait function into teach.h
+5 add remote python client into util
+6 move tasks to util
+7 create 2 modes
+8 add echo
+9 spawn new i target
+10 add score
+11 add echo when connected and switch modes
+12 move teach.h to util
+13 fix mistary error with echo
+14 add swither to tasks
+15 exclude main.exe when run_and_compile (bad beh on mode 2)
+16 fix bad beh on mode 2 (main.exe exclude is not working)
+17 change main.exe to program.exe
+18 add stack that storage commands
+19 fix score
+20 show message with program that storage in stack
+21 start with remote if drag some param
+22 restore after viruses
+23 numerate tasks
+24 add _remote.c into task
+25 add functions symbol, decimal and real into teach.h
+26 add map.bmp
+27 simple.exe
+28 clear stack when crash with wall
+29 add ip as a second param to remote.py
+30 exclude delete program.exe from .bat
